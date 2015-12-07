@@ -1,7 +1,7 @@
 ﻿using System.Data.Common;
-using System.Data.SqlClient;
 using Akka.Actor;
 using Akka.Persistence.Sql.Common.Journal;
+using Npgsql;
 
 namespace Akka.Persistence.PostgreSql.Journal
 {
@@ -17,7 +17,7 @@ namespace Akka.Persistence.PostgreSql.Journal
 
         protected override DbConnection CreateDbConnection(string connectionString)
         {
-            return new SqlConnection(connectionString);
+            return new NpgsqlConnection(connectionString);
         }
 
         protected override void CopyParamsToCommand(DbCommand sqlCommand, JournalEntry entry)
@@ -37,7 +37,9 @@ namespace Akka.Persistence.PostgreSql.Journal
     /// </summary>
     public class PostgreSqlJournal : SqlJournal
     {
-        public PostgreSqlJournal(JournalDbEngine dbEngine) : base(dbEngine)
+        public readonly PostgreSqlPersistence Extension = PostgreSqlPersistence.Get(Context.System);
+
+        public PostgreSqlJournal() : base(new PostgreSqlJournalEngine(Context.System))
         {
         }
     }
